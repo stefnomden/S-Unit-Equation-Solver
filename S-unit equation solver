@@ -2,7 +2,7 @@ from sage.rings.number_field.S_unit_solver import solve_S_unit_equation
 
 x = polygen(QQ);
 
-d = 97 #this is the d such that K = Q(sqrt(-d)) so d should be positive and d should be congruent to 2 mod 3
+d = 97 #this is the d such that K = Q(sqrt(-d)) so d should be positive and d should be congruent to 1 mod 3
 
 L.<g> = NumberField(x^4 + 2*(d+3)*x^2+(d-3)^2) #put polynomial here whose root generates the field Q(zeta3, sqrt(-d))
 
