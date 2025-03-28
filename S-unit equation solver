@@ -1,0 +1,71 @@
+from sage.rings.number_field.S_unit_solver import solve_S_unit_equation
+
+x = polygen(QQ);
+
+d = 97 #this is the d such that K = Q(sqrt(-d)) so d should be positive and d should be congruent to 2 mod 3
+
+L.<g> = NumberField(x^4 + 2*(d+3)*x^2+(d-3)^2) #put polynomial here whose root generates the field Q(zeta3, sqrt(-d))
+
+G = L.galois_group()
+A1, _ = (G.subgroup([G[1]])).fixed_field() 
+A2, _ = (G.subgroup([G[2]])).fixed_field()
+A3, _ = (G.subgroup([G[3]])).fixed_field()
+print('A1 = ',A1,'\n')
+print('A2 = ',A2,'\n')
+print('A3 = ',A3,'\n')
+fields = [A1,A2,A3]
+
+for x in range(len(fields)):
+    if (fields[x].gen())^6 == 1:
+        j = x + 1 #j is the index of the subfield of L which is the 3rd cyclotomic field
+if j == 1: #i is the index of the field K we are considering (imaginary quadratic subfield of L which is not the 3rd cyclotomic field)
+    i = 2
+else:
+    i = 1
+
+
+z = -fields[j-1].gen() # z is the third root of unity
+
+S = L.ideal(3).prime_factors();
+print(S)
+
+sols = solve_S_unit_equation(L,S,include_exponents=False)
+print(sols)
+
+solsTilde = []
+
+for F in sols:        #make coordinate transformation to the equation x/(zeta-1) - y/(zeta-1) = 1
+    solsTilde.append(((z-1)*F[0], -(z-1)*F[1]))
+    solsTilde.append(((z-1)*F[1], -(z-1)*F[0])) #we also add the flipped version because the Sunit solver in Sage does not consider (x,y) and (y,x) different
+    
+solsTildeTilde = []    
+    
+for F in solsTilde: #check condition 3 of the 'recipe'
+    x = F[0]
+    y = F[1]
+    if (x+1 == y+z) and (G[i](x+1) == x+1):
+        solsTildeTilde.append((x,y))
+  
+    
+alphasols = []
+
+print('solstildetilde ={}\n'.format(solsTildeTilde))
+
+
+for F in solsTildeTilde:    #how alpha is defined (see Theorem 14.1 in the math diary)
+    alpha = F[0]*F[1]*(F[1] - z*(z-1))
+    alphasols.append(alpha)
+
+
+for alpha in alphasols:               #this checks if the alpha is indeed in A = Q(sqrt(-19)) by seeing if it is fixed by G[i]
+    print('alpha = {} and f(alpha) = {}'.format(alpha, G[i](alpha)))
+    
+print()
+
+for i in alphasols:
+    print(i)
+    
+print()
+
+
+    
